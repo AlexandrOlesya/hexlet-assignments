@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'digest'  
+require 'digest'
 
 class Signature
   def initialize(app)
