@@ -1,21 +1,6 @@
 # frozen_string_literal: true
 
-require 'digest'
-
-class MiddlewareSignature
-  def initialize(app)
-    @app = app
-  end
-
-  def call(env)
-    status, headers, body = @app.call(env)
-
-    request = Rack::Request.new(env)
-    signature = Digest::SHA2.hexdigest(body)
-
-    new_body = "#{body}\n#{signature}"
-    [status, headers, new_body]
-  end  
+require 'digest'  
 
 class Signature
   def initialize(app)
@@ -23,9 +8,13 @@ class Signature
   end
 
   def call(env)
-    [200, {}, ['Hello, World!']]
+    status, headers, body = @app.call(env)
+
+    messsage = body.first
+    body << '\n'
+    body << Digest::SHA2.hexdigest(messsage)
+    body << '\n'
+
+    [status, headers, body]
   end
 end
-
-use MiddlewareSignature
-run Signature.new

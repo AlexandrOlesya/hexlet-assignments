@@ -1,16 +1,5 @@
 # frozen_string_literal: true
-
-class MiddlewareAdminPolicy
-  def initialize(app)
-    @app = app
-  end
-
-  def call(env)
-    request = Rack::Request.new(env)
-
-    [403,{},[]] if request.path == '/admin' 
-  end  
-end  
+require 'rack'
 
 class AdminPolicy
   def initialize(app)
@@ -18,9 +7,10 @@ class AdminPolicy
   end
 
   def call(env)
-    [200, {}, ['succes']]
+    request = Rack::Request.new(env)
+
+    return [403, { "Content-Type" => "text/plain" }, ['Forbidden']] if request.path == '/admin'
+
+    @app.call(env)
   end
 end
-
-use MiddlewareAdminPolicy
-run AdminPolicy.new
